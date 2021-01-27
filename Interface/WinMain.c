@@ -5,6 +5,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #define EDITID 1
+#define MAX_SIZE pow(2, 16)
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 static HWND hDlgModeless;
 HINSTANCE hInst;
@@ -102,8 +103,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam){
             data.cxClient = LOWORD(lParam);//ширина окна
             data.cyClient = HIWORD(lParam);//высота окна
             if(data.p_m == ORDINARY){
-                data.Sc_pos = (data.num_str > pow(2, 16)) ? data.num_str / pow(2, 16) + 1 : 1;
-                data.iVscrollMax = min(pow(2, 16), (max(0, data.num_str - data.cyClient / data.cyChar) / data.Sc_pos));
+                data.Sc_pos = (data.num_str > MAX_SIZE) ? data.num_str / MAX_SIZE + 1 : 1;
+                data.iVscrollMax = min(MAX_SIZE, (max(0, data.num_str - data.cyClient / data.cyChar) / data.Sc_pos));
                 data.iVscrollPos = (int)(min(data.iVscrollPos, data.iVscrollMax));
                 SetScrollRange(hwnd, SB_VERT, 0, data.iVscrollMax, FALSE);
                 SetScrollPos(hwnd, SB_VERT, data.iVscrollPos, TRUE);
@@ -116,7 +117,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam){
                 data.iHscrollMax = 0;
                 SetScrollRange(hwnd, SB_HORZ, 0, data.iHscrollMax, FALSE);
                 data.num_layout_str = Layout_str(data.start_str, data.num_str, data.cxClient / data.cxChar);
-                data.Sc_pos = (data.num_layout_str > pow(2, 16)) ? data.num_layout_str / pow(2, 16) + 1 : 1;
+                data.Sc_pos = (data.num_layout_str > MAX_SIZE) ? data.num_layout_str / MAX_SIZE + 1 : 1;
                 data.iVscrollMax = (int)(max(0, data.num_layout_str - data.cyClient / data.cyChar) / data.Sc_pos);
                 data.start_layout = NewStartPos(data.start_layout, data.cxClient / data.cxChar);
                 data.iLayoutVscrollPos = (Scroll_Pos(data.start_str, data.iVscrollPos, data.cxClient / data.cxChar) + (data.start_layout / (data.cxClient / data.cxChar))) / data.Sc_pos;
@@ -211,7 +212,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam){
                     return 0;
                 }
             }
-            if((data.iLayoutVscrollPos == data.iVscrollMax) && (data.num_layout_str - data.num_layout_str * data.Sc_pos != data.cyClient / data.cyChar) && (data.iVscrollInc == 0)){
+            if((data.iLayoutVscrollPos == data.iVscrollMax) && (data.num_layout_str - data.num_layout_str * data.Sc_pos > data.cyClient / data.cyChar) && (data.iVscrollInc == 0)){
                 for(i = 0; i < data.num_layout_str - data.num_layout_str * data.Sc_pos - data.cyClient / data.cyChar; i++){
                         if(data.start_str[data.iVscrollPos].end_str - data.start_str[data.iVscrollPos].start_str <= data.start_layout + data.cxClient / data.cxChar){
                             data.iVscrollPos++;
@@ -271,9 +272,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam){
                     }
                     ScrollWindow(hwnd, 0, -data.cyChar * (data.iVscrollInc * data.Sc_pos - j), NULL, NULL);
                     SetScrollPos(hwnd, SB_VERT, data.iLayoutVscrollPos, TRUE);
-                }
-                else{
-
                 }
                 hdc = BeginPaint(hwnd, &ps);
                 lprect = &ps.rcPaint;
@@ -437,7 +435,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam){
             EnableMenuItem(hMenu, IDM_ORDINARY_MODE, MF_GRAYED);
             EnableMenuItem(hMenu, IDM_LAYOUT_MODE, MF_ENABLED);
             data.p_m = ORDINARY;
-            data.Sc_pos = (data.num_str > pow(2, 16)) ? data.num_str / pow(2, 16) + 1 : 1;
+            data.Sc_pos = (data.num_str > MAX_SIZE) ? data.num_str / MAX_SIZE + 1 : 1;
             data.iVscrollPos = data.iVscrollPos / data.Sc_pos;
             data.iVscrollMax = (int)(max(0, data.num_str - data.cyClient / data.cyChar) / data.Sc_pos);
             SetScrollRange(hwnd, SB_VERT, 0, data.iVscrollMax, TRUE);
@@ -456,7 +454,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam){
             data.iLayoutVscrollPos = Scroll_Pos(data.start_str, data.iVscrollPos, data.cxClient / data.cxChar);
             data.start_layout = 0;
             data.num_layout_str = Layout_str(data.start_str, data.num_str, data.cxClient / data.cxChar);
-            data.Sc_pos = (data.num_layout_str > pow(2, 16)) ? data.num_layout_str / pow(2, 16) + 1 : 1;
+            data.Sc_pos = (data.num_layout_str > MAX_SIZE) ? data.num_layout_str / MAX_SIZE + 1 : 1;
             data.iLayoutVscrollPos /= data.Sc_pos;
             data.iVscrollMax = (int)(max(0, data.num_layout_str - data.cyClient / data.cyChar) / data.Sc_pos);
             SetScrollRange(hwnd, SB_VERT, 0, data.iVscrollMax, TRUE);
