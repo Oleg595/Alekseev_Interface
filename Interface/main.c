@@ -5,9 +5,19 @@ int Layout_str(struct Str_data_t* start_str, int num_str, int size) {
     int count = 0;
     for (i = 0; i < num_str; i++) {
         num = start_str[i].end_str - start_str[i].start_str;//без учёта знака перевода строки
-        count += (num / size) + ((num % size > 0) ? 1 : 0);
+        if(num == 0){
+            count++;
+        }
+        else{
+            count += (num / size) + ((num % size > 0) ? 1 : 0);
+        }
     }
     return count;
+}
+
+int NewStartPos(int start_pos, int size){
+    start_pos -= start_pos % size;
+    return start_pos;
 }
 
 int Scroll_Pos(struct Str_data_t* start_str, int scroll_pos, int size) {
@@ -76,12 +86,12 @@ void Read(char szFileName[], struct data_t* data) {//Функция, считывающая данные
     data->iHscrollMax = max(0, data->iMaxWidth - data->cxClient / data->cxChar);
     data->iHscrollPos = min(data->iHscrollPos, data->iHscrollMax);
     data->start_str[j].end_str = size + 1;
-    data->iVscrollMax = min(pow(2, 16), (max(0, data->num_str + 2 - data->cyClient / data->cyChar) / data->Sc_pos));
+    data->iVscrollMax = min(pow(2, 16), (max(0, data->num_str - data->cyClient / data->cyChar) / data->Sc_pos));
     if (data->p_m == LAYOUT) {
         data->iLayoutVscrollPos = 0;
         data->num_layout_str = Layout_str(data->start_str, data->num_str, data->cxClient / data->cxChar);
         data->iHscrollMax = 0;
-        data->iVscrollMax = (int)(max(0, data->num_layout_str + 2 - data->cyClient / data->cyChar) / data->Sc_pos);
+        data->iVscrollMax = (int)(max(0, data->num_layout_str - data->cyClient / data->cyChar) / data->Sc_pos);
     }
 }
 
