@@ -20,11 +20,16 @@ int NewStartPos(int start_pos, int size){
     return start_pos;
 }
 
-int Scroll_Pos(struct Str_data_t* start_str, int scroll_pos, int size) {
+int Scroll_Pos(struct Str_data_t* start_str, int scroll_pos, int size, int num_str) {
     int pos = 0;
     int i = 0;
     for (; i < scroll_pos; i++) {
-        pos += (start_str[i].end_str - start_str[i].start_str) / size + (((start_str[i].end_str - start_str[i].start_str) % size != 0) ? 1 : 0);
+        if((start_str[i].end_str == start_str[i].start_str) && (i != num_str)){
+            pos++;
+        }
+        else{
+            pos += (start_str[i].end_str - start_str[i].start_str) / size + (((start_str[i].end_str - start_str[i].start_str) % size != 0) ? 1 : 0);
+        }
     }
     return pos;
 }
