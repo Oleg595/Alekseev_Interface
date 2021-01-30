@@ -19,8 +19,8 @@ INTERFACE_H enum PAINT_MODE {
 };
 
 INTERFACE_H struct Str_data_t {//структура, которая хранит номер первого и последнего элемента строки
-    int start_str;
-    int end_str;
+    int start_str;//номер символа, с которого начинается строка, в общем массиве символов
+    int end_str;//номер символа, на котором заканчиавается строка, в общем массиве символов
 };
 
 INTERFACE_H struct data_t {
@@ -38,28 +38,68 @@ INTERFACE_H struct data_t {
     int iMaxWidth;//наибольшая ширина строки
     int Sc_pos;//переменная, определяющая, на сколько строк нужно опуститься при прокрутке на 1 строку
     enum PAINT_MODE p_m;//переменная, в которой определяется режим отрисовки: обычны или вёрстки
-    OPENFILENAME* ofn;
+    OPENFILENAME* ofn;//структура для работы со стандартным диалоовым окном Open
 };
 
-INTERFACE_H void Read(char szFileName[], struct data_t* data);/*Функция, считывающая данные с файла и записывающая их структуру data_t,
-которая хранит данные окна. На вход принимает имя файла и указатель на структуру.*/
+/**
+*@brief Функция, считывающая данные с файла и записывающая их структуру в data_t
+*@param szFileName[] название файла, с которого считываются данные
+*@param data непосредственно структура, в которую записываются полученные данные
+*/
 
-INTERFACE_H void Clear(struct data_t* data);/*функция для очистки данных структуры data_t. Используется при закрытии файла и программы.
-На вход принимает указатель на структуру data_t*/
+INTERFACE_H void Read(char szFileName[], struct data_t* data);
 
-INTERFACE_H int NewStartPos(int start_pos, int size);/*функция, возвращающая место начала видимой части файла, относительно первой видимой строки,
-на вход принимается прошлая такая позиция и новый размер окна по оси x*/
+/**
+*@brief функция для очистки данных структуры data_t
+*@param data сама структура, данные которой нужно очистить
+*/
 
-INTERFACE_H int Layout_str(struct Str_data_t* start_str, int num_str, int size);/*функция, возвращая количество строк в режиме вёрстки. На вход принимает массив структур
-Str_data_t, в котором содержится информация о начале и конце строки в обычном режиме, количество строк в обычном режиме и размер окна по оси x*/
+INTERFACE_H void Clear(struct data_t* data);
 
-INTERFACE_H int Scroll_Pos(struct Str_data_t* start_str, int scroll_pos, int size); /*функция, возвращающая положение бегунка для режима вёрстки. На вход принимает
-массив структур Str_data_t, в которых содержится информация о конце и начале строки, положение бегунка относительно обычного режима и размер окна по оси x*/
+/**
+*@brief функция, возвращающая место начала видимой части файла, относительно первой видимой строки
+*@param start_pos старая начальная позиция
+*@param size размер окна по оси x
+*@return новая начальная позиция
+*/
 
-INTERFACE_H void PopFileInitialize(HWND hwnd, OPENFILENAME* ofn);/*На вход принимается описатель окна. Функция для инициализации самого окна*/
+INTERFACE_H int NewStartPos(int start_pos, int size);
 
-INTERFACE_H BOOL PopFileOpenDlg(HWND hwnd, OPENFILENAME* ofn, PSTR pstrFileName, PSTR pstrTitleName);/*функция, отвечающая за открытия диалогового окна. На вход принимается описатель окна
- //и 2 макроса PSTR: указатели на буфер полного имени файла и на буфер только имени файла*/
+/**
+*@brief функция, возвращая количество строк в режиме вёрстки
+*@param start_str массив структур, в которых содержатся данные о начале и конце каждой строки в обычном режиме
+*@param num_str количество строк
+*@param size размер окна по оси x
+*@return количество строк в режиме вёрстки для данного размера окна
+*/
 
- //#endif // INTERFACE_DLL_H_INCLUDED
+INTERFACE_H int Layout_str(struct Str_data_t* start_str, int num_str, int size);
 
+/**
+*@brief функция, возвращающая положение бегунка по оси y для режима вёрстки
+*@param start_str массив структур, в которых содержатся данные о начале и конце каждой строки в обычном режиме
+*@param scroll_pos предыдущая позиция бегунка по оси y
+*@param size размер окна по оси x
+*@param num_str количество строк в обычном режиме
+*@return новое положение бегунка
+*/
+
+INTERFACE_H int Scroll_Pos(struct Str_data_t* start_str, int scroll_pos, int size, int num_str);
+
+/**
+*@brief функция, инициализиующая экземпляр структуры OPENFILENAME
+*@param hwnd описатель контекста устройства
+*@param ofn структура для работы со стандартным диалоговым окном Open
+*/
+
+INTERFACE_H void PopFileInitialize(HWND hwnd, OPENFILENAME* ofn);
+
+/**
+*@brief функция, создающая стандартное диалоговое окно "Открыть"
+*@param hwnd описатель контекста устройства
+*@param ofn структура для работы со стандартным диалоговым окном Open
+*@param pstrFileName полное имя текущего файла
+*@param pstrTitleName имя текущего файла
+*/
+
+INTERFACE_H BOOL PopFileOpenDlg(HWND hwnd, OPENFILENAME* ofn, PSTR pstrFileName, PSTR pstrTitleName);
