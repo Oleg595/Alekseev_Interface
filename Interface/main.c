@@ -15,9 +15,9 @@ int Layout_str(struct Str_data_t* start_str, int num_str, int size) {
     return count;
 }
 
-int NewStartPos(int start_pos, int size){
-    start_pos -= start_pos % size;
-    return start_pos;
+int NewStartPos(int start_pos, int size, int old_size){
+    int num = start_pos / old_size;
+    return size * num;
 }
 
 int Scroll_Pos(struct Str_data_t* start_str, int scroll_pos, int size, int num_str) {
