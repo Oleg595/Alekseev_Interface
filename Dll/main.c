@@ -15,14 +15,12 @@ int Layout_str(struct Str_data_t* start_str, int num_str, int size) {
     return count;
 }
 
-int NewStartPos(int start_pos, int size, int old_size){
-    int num = start_pos / old_size;
-    return size * num;
-}
-
 int Scroll_Pos(struct Str_data_t* start_str, int scroll_pos, int size, int num_str) {
     int pos = 0;
     int i = 0;
+    if(num_str == 0){
+        return pos;
+    }
     for (; i < scroll_pos; i++) {
         if((start_str[i].end_str == start_str[i].start_str) && (i != num_str)){
             pos++;
@@ -47,6 +45,9 @@ void Clear(struct data_t* data) {//функция для очистки данных структуры data_t. 
     data->num_layout_str = 0;
     data->iHscrollPos = 0;
     data->iVscrollPos = 0;
+    data->iHscrollMax = 0;
+    data->iVscrollMax = 0;
+    data->iMaxWidth = 0;
 }
 
 void Read(char szFileName[], struct data_t* data) {//Функция, считывающая данные с файла и записывающая их структуру data_t, которая хранит данные окна. На вход принимает имя файла и указатель на структуру.
@@ -56,6 +57,25 @@ void Read(char szFileName[], struct data_t* data) {//Функция, считывающая данные
     data->iHscrollPos = 0;
     file = fopen(szFileName, "rb");
     if (file == NULL) {
+        data->num_str = 0;
+        data->iVscrollPos = 0;
+        if(data->start_str != NULL){
+            free(data->start_str);
+        }
+        data->start_str = (struct Str_data_t*)malloc(sizeof(struct Str_data_t));
+        data->start_str[0].end_str = 0;
+        data->start_str[0].start_str = 0;
+        if(data->str_data != NULL){
+            free(data->str_data);
+        }
+        data->str_data = (char*)malloc(sizeof(char));
+        data->str_data[0] = '\0';
+        data->num_str = 0;
+        data->iHscrollMax = 0;
+        data->iHscrollPos = 0;
+        data->iVscrollMax = 0;
+        data->num_layout_str = 0;
+        data->iMaxWidth = 0;
         return;
     }
     fseek(file, 0, SEEK_END);
