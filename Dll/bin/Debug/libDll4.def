@@ -1,11 +1,10 @@
 EXPORTS
     Clear @1
     Layout_str @2
-    NewStartPos @3
-    PopFileInitialize @4
-    PopFileOpenDlg @5
-    Read @6
-    Scroll_Pos @7
+    PopFileInitialize @3
+    PopFileOpenDlg @4
+    Read @5
+    Scroll_Pos @6
 
 IMPORTS
 
