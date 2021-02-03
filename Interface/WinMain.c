@@ -113,6 +113,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam){
                 data.iHscrollPos = min(data.iHscrollPos, data.iHscrollMax);
                 SetScrollRange(hwnd, SB_HORZ, 0, data.iHscrollMax, FALSE);
                 SetScrollPos(hwnd, SB_HORZ, data.iHscrollPos, TRUE);
+                if((data.iVscrollPos == data.iVscrollMax) && (data.iVscrollMax != 0)){
+                    data.start = data.num_str - (data.iVscrollPos * data.Sc_pos) - (data.cyClient / data.cyChar);
+                }
             }
             if(data.p_m == LAYOUT){
                 data.iHscrollMax = 0;
@@ -120,7 +123,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam){
                 data.num_layout_str = Layout_str(data.start_str, data.num_str, data.cxClient / data.cxChar);
                 data.Sc_pos = (data.num_layout_str > MAX_SIZE) ? data.num_layout_str / MAX_SIZE + 1 : 1;
                 data.iVscrollMax = (int)(max(0, data.num_layout_str - data.cyClient / data.cyChar) / data.Sc_pos);
-                data.start_layout = NewStartPos(data.start_layout, data.cxClient / data.cxChar, j);
                 data.iLayoutVscrollPos = (Scroll_Pos(data.start_str, data.iVscrollPos, data.cxClient / data.cxChar, data.num_str) + (data.start_layout / (data.cxClient / data.cxChar))) / data.Sc_pos;
                 SetScrollRange(hwnd, SB_VERT, 0, data.iVscrollMax, TRUE);
                 ScrollWindow(hwnd, 0, -data.cyChar * data.iVscrollInc * data.Sc_pos, NULL, NULL);
@@ -128,30 +130,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam){
                     data.iVscrollPos = 0;
                     data.start_layout = 0;
                 }
-                if(data.num_layout_str - data.Sc_pos * data.iLayoutVscrollPos
-                   - ((data.start_layout != 0) ? 1 : 0) < data.cyClient / data.cyChar){
+                if((data.iLayoutVscrollPos >= data.iVscrollMax) && (data.num_str != 0) && (data.iVscrollMax != 0)){
                     data.iVscrollPos = data.num_str;
                     data.start_layout = 0;
-                    for(i = 0; i < data.cyClient / data.cyChar; i++){
-                        if(data.start_layout - data.cxClient / data.cxChar < 0){
-                            data.iVscrollPos--;
-                            if(data.start_str[data.iVscrollPos].end_str - data.start_str[data.iVscrollPos].start_str >= data.cxClient / data.cxChar){
-                                if((data.start_str[data.iVscrollPos].end_str - data.start_str[data.iVscrollPos].start_str) % (data.cxClient / data.cxChar) != 0){
-                                data.start_layout = data.start_str[data.iVscrollPos].end_str - data.start_str[data.iVscrollPos].start_str - ((data.start_str[data.iVscrollPos].end_str - data.start_str[data.iVscrollPos].start_str) % (data.cxClient / data.cxChar));
-                                }
-                                else{
-                                    data.start_layout = data.start_str[data.iVscrollPos].end_str - data.start_str[data.iVscrollPos].start_str - data.cxClient / data.cxChar;
-                                }
-                            }
-                            else{
-                                data.start_layout = 0;
-                            }
-                        }
-                        else{
+                    for(i = data.cyClient / data.cyChar; i > 0; i--){
+                        if(data.start_layout >= data.cxClient / data.cxChar){
                             data.start_layout -= data.cxClient / data.cxChar;
                         }
+                        else{
+                            data.iVscrollPos--;
+                            data.start_layout = data.start_str[data.iVscrollPos].end_str - data.start_str[data.iVscrollPos].start_str -
+                            ((data.start_str[data.iVscrollPos].end_str - data.start_str[data.iVscrollPos].start_str) % (data.cxClient / data.cxChar));
+                        }
                     }
-                    data.iLayoutVscrollPos = data.iVscrollMax;
                     SetScrollPos(hwnd, SB_VERT, data.iLayoutVscrollPos, TRUE);
                     InvalidateRect(hwnd, NULL, TRUE);
                     return 0;
@@ -207,8 +198,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam){
                 -data.iVscrollPos,
                 min(data.iVscrollInc, data.iVscrollMax - data.iVscrollPos)
                 );
-                if((data.iVscrollInc == 0) && (data.start != 0)){
+                if((data.iVscrollInc == 0) && (data.start != 0) && (data.iVscrollPos == 0)){
                     data.start = 0;
+                    SetScrollPos(hwnd, SB_VERT, data.iVscrollPos, TRUE);
+                    InvalidateRect(hwnd, NULL, TRUE);
+                    return 0;
+                }
+                if((data.iVscrollPos + data.iVscrollInc == data.iVscrollMax) && (data.iVscrollInc != 0)){
+                    data.iVscrollPos = data.iVscrollMax;
+                    data.start = (data.num_str - data.start - (data.iVscrollPos * data.Sc_pos) - (data.cyClient / data.cyChar)) % data.Sc_pos;
                     SetScrollPos(hwnd, SB_VERT, data.iVscrollPos, TRUE);
                     InvalidateRect(hwnd, NULL, TRUE);
                     return 0;
@@ -227,18 +225,23 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam){
                     InvalidateRect(hwnd, NULL, TRUE);
                     return 0;
                 }
-                if((data.iLayoutVscrollPos + data.iVscrollInc == data.iVscrollMax) && (data.num_layout_str - data.iLayoutVscrollPos * data.Sc_pos > data.cyClient / data.cyChar) && (data.iVscrollInc != 0)){
+                if((data.iLayoutVscrollPos + data.iVscrollInc == data.iVscrollMax) && (data.num_layout_str - data.iLayoutVscrollPos
+                    * data.Sc_pos > data.cyClient / data.cyChar) && (data.iVscrollInc != 0)){
                     data.iVscrollPos = data.num_str;
                     data.start_layout = 0;
                     for(i = 0; i < data.cyClient / data.cyChar; i++){
                         if(data.start_layout - data.cxClient / data.cxChar < 0){
                             data.iVscrollPos--;
                             if(data.start_str[data.iVscrollPos].end_str - data.start_str[data.iVscrollPos].start_str >= data.cxClient / data.cxChar){
-                                if((data.start_str[data.iVscrollPos].end_str - data.start_str[data.iVscrollPos].start_str) % (data.cxClient / data.cxChar) != 0){
-                                data.start_layout = data.start_str[data.iVscrollPos].end_str - data.start_str[data.iVscrollPos].start_str - ((data.start_str[data.iVscrollPos].end_str - data.start_str[data.iVscrollPos].start_str) % (data.cxClient / data.cxChar));
+                                if((data.start_str[data.iVscrollPos].end_str - data.start_str[data.iVscrollPos].start_str)
+                                    % (data.cxClient / data.cxChar) != 0){
+                                    data.start_layout = data.start_str[data.iVscrollPos].end_str - data.start_str[data.iVscrollPos].start_str
+                                     - ((data.start_str[data.iVscrollPos].end_str - data.start_str[data.iVscrollPos].start_str)
+                                         % (data.cxClient / data.cxChar));
                                 }
                                 else{
-                                    data.start_layout = data.start_str[data.iVscrollPos].end_str - data.start_str[data.iVscrollPos].start_str - data.cxClient / data.cxChar;
+                                    data.start_layout = data.start_str[data.iVscrollPos].end_str - data.start_str[data.iVscrollPos].start_str
+                                     - data.cxClient / data.cxChar;
                                 }
                             }
                             else{
@@ -456,6 +459,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam){
         case IDM_CLOSE:
             Clear(&data);
             InvalidateRect(hwnd, NULL, TRUE);
+            SendMessage(hwnd, WM_SIZE, 0, data.cyClient);
             return 0;
         case IDM_EXIT:
             Clear(&data);
@@ -472,7 +476,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam){
             SetScrollRange(hwnd, SB_VERT, 0, data.iVscrollMax, TRUE);
             SetScrollPos(hwnd, SB_VERT, data.iVscrollPos, TRUE);
             data.iHscrollMax = max(0, data.iMaxWidth - data.cxClient / data.cxChar);
-            data.iHscrollPos = min(data.iHscrollPos, data.iHscrollMax);
+            data.iHscrollPos = 0;
             SetScrollRange(hwnd, SB_HORZ, 0, data.iHscrollMax, TRUE);
             SetScrollPos(hwnd, SB_HORZ, data.iHscrollPos, TRUE);
             InvalidateRect(hwnd, NULL, TRUE);
