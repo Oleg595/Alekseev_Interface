@@ -29,7 +29,7 @@ INTERFACE_H struct data_t {
     int num_str;//количество считанных строк
     int num_layout_str;//количество строк в режиме вёрстки
     struct Str_data_t* start_str;// структура, хранящая индексы начала и конца каждой считанной строки
-    int start_layout, start;//переменная, хранящая позицию для начала печати в режиме вёрстки относительно текущей строки
+    int start_layout, start;//переменные, хранящая позицию для начала печати в режиме вёрстки и без вёрстки относительно текущей строки
     int iVscrollPos, iLayoutVscrollPos;//позиции бегунка в обычном режиме и режиме вёрстки по вертикали
     int iHscrollPos;//позиция бегунка по горизонтали
     int cxClient, cyClient;//размеры окна
@@ -55,16 +55,6 @@ INTERFACE_H void Read(char szFileName[], struct data_t* data);
 */
 
 INTERFACE_H void Clear(struct data_t* data);
-
-/**
-*@brief функция, возвращающая место начала видимой части файла, относительно первой видимой строки
-*@param start_pos старая начальная позиция
-*@param size размер окна по оси x
-*@param old_size размер окна по оси x до изменения размера
-*@return новая начальная позиция
-*/
-
-INTERFACE_H int NewStartPos(int start_pos, int size, int old_size);
 
 /**
 *@brief функция, возвращая количество строк в режиме вёрстки
