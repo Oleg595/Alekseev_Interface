@@ -101,6 +101,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam){
             return 0;
         case WM_SIZE :
             j = data.cxClient / data.cxChar;
+            q = data.cyClient / data.cyChar;
             data.cxClient = LOWORD(lParam);//ширина окна
             data.cyClient = HIWORD(lParam);//высота окна
             if(data.p_m == ORDINARY){
@@ -130,7 +131,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam){
                     data.iVscrollPos = 0;
                     data.start_layout = 0;
                 }
-                if((data.iLayoutVscrollPos >= data.iVscrollMax) && (data.num_str != 0) && (data.iVscrollMax != 0) && (j < data.cxClient / data.cxChar)){
+                if((data.iLayoutVscrollPos >= data.iVscrollMax) && (data.num_str != 0) && (data.iVscrollMax != 0) && ((j < data.cxClient / data.cxChar) ||
+                                                                        ((data.cxClient / data.cxChar == j) && (q < data.cyClient / data.cyChar)))){
                     data.iVscrollPos = data.num_str;
                     data.start_layout = 0;
                     for(i = data.cyClient / data.cyChar; i > 0; i--){
