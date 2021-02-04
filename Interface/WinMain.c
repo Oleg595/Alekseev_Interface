@@ -198,8 +198,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam){
                 -data.iVscrollPos,
                 min(data.iVscrollInc, data.iVscrollMax - data.iVscrollPos)
                 );
-                if((data.iVscrollInc == 0) && (data.start != 0) && (data.iVscrollPos == 0)){
+                if((data.iVscrollPos + data.iVscrollInc == 0) && (data.iVscrollInc != 0) && (data.start != 0)){
                     data.start = 0;
+                    data.iVscrollPos = 0;
                     SetScrollPos(hwnd, SB_VERT, data.iVscrollPos, TRUE);
                     InvalidateRect(hwnd, NULL, TRUE);
                     return 0;
@@ -359,10 +360,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam){
             data.cyChar = tm.tmHeight + tm.tmExternalLeading;
             switch(data.p_m){
                 case ORDINARY:
+                    if(ps.rcPaint.left % data.cxChar != 0){
+                        lprect = &ps.rcPaint;
+                        lprect->left -= (lprect->left % data.cxChar + data.cxChar);
+                        EndPaint(hwnd, &ps);
+                        InvalidateRect(hwnd, lprect, TRUE);
+                    }
                     iPaintBeg = max(0, data.iVscrollPos * data.Sc_pos + data.start + ps.rcPaint.top / data.cyChar);
                     iPaintEnd = min(data.num_str, data.iVscrollPos * data.Sc_pos + data.start + ps.rcPaint.bottom / data.cyChar);
                     iPaintLeft = ps.rcPaint.left / data.cxChar + data.iHscrollPos;
-                    iPaintRight = ps.rcPaint.right / data.cxChar + data.iHscrollPos + 1;
+                    iPaintRight = ps.rcPaint.right / data.cxChar + data.iHscrollPos;
                     for(i = iPaintBeg; (i <= iPaintEnd) && (i < data.num_str); i++){
                         y = data.cyChar * (i - (data.iVscrollPos * data.Sc_pos + data.start));
                         TextOut(hdc, ps.rcPaint.left, y, data.str_data + data.start_str[i].start_str + iPaintLeft,
