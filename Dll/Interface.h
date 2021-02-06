@@ -12,10 +12,10 @@
 #include<windows.h>
 #include<commdlg.h>
 
-INTERFACE_H enum PAINT_MODE {
-    ORDINARY,
-    LAYOUT,
-    NODATA
+INTERFACE_H enum PAINT_MODE {//тип данных, в котором определяется режим работы программы
+    ORDINARY, //режим без вёрстки
+    LAYOUT, //режим с вёрсткой
+    NODATA //нет режима, не открыт файл
 };
 
 INTERFACE_H struct Str_data_t {//структура, которая хранит номер первого и последнего элемента строки
