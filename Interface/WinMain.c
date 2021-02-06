@@ -141,8 +141,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam){
                         }
                         else{
                             data.iVscrollPos--;
-                            data.start_layout = data.start_str[data.iVscrollPos].end_str - data.start_str[data.iVscrollPos].start_str -
-                            ((data.start_str[data.iVscrollPos].end_str - data.start_str[data.iVscrollPos].start_str) % (data.cxClient / data.cxChar));
+                            data.start_layout = data.start_str[data.iVscrollPos].end_str - data.start_str[data.iVscrollPos].start_str;
+                            if((data.start_str[data.iVscrollPos].end_str - data.start_str[data.iVscrollPos].start_str) % (data.cxClient / data.cxChar) == 0){
+                                data.start_layout -= data.cxClient / data.cxChar;
+                            }
+                            else{
+                                data.start_layout -= (data.start_str[data.iVscrollPos].end_str - data.start_str[data.iVscrollPos].start_str)
+                                 % (data.cxClient / data.cxChar);
+                            }
                         }
                     }
                     SetScrollPos(hwnd, SB_VERT, data.iLayoutVscrollPos, TRUE);
