@@ -8,3 +8,12 @@
 	<windows.h>
 	<commdlg.h>
 
+1612389422 source:d:\alekseev_interface\dll\main.c
+	"Interface.h"
+
+1612601001 d:\alekseev_interface\dll\interface.h
+	<stdio.h>
+	<stdlib.h>
+	<windows.h>
+	<commdlg.h>
+
