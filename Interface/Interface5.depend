@@ -18,3 +18,27 @@
 	<windows.h>
 	<commdlg.h>
 
+1612473289 source:d:\interface\menu.rc
+	"Menu.h"
+
+1612473289 d:\interface\menu.h
+
+1612473289 source:d:\alekseev_interface\interface\menu.rc
+	"Menu.h"
+
+1612473289 d:\alekseev_interface\interface\menu.h
+
+1612598078 source:d:\alekseev_interface\interface\winmain.c
+	"Menu.h"
+	"Interface.h"
+	<windows.h>
+	<commdlg.h>
+	<stdio.h>
+	<stdlib.h>
+
+1612473289 d:\alekseev_interface\interface\interface.h
+	<stdio.h>
+	<stdlib.h>
+	<windows.h>
+	<commdlg.h>
+
